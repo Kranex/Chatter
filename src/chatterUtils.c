@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 #include "chatterUtils.h"
 
 #ifdef WIN32
@@ -20,4 +22,39 @@ void sleep_ms(int milliseconds) // cross-platform sleep function
 #else
     usleep(milliseconds * 1000);
 #endif
+}
+char **getCommand(char *inp){
+  int args = 1;
+  int length = strlen(inp);
+  for(int i = 0; i < length-1; i++){
+    if(inp[i] == ' ' && inp[i+1] != ' ' && inp[i+1] != '\0'){
+      args++;
+    }
+  }
+  int nxt = 0;
+  int arg = 0;
+
+  char **com = malloc(args * sizeof(char *));
+  com[0] = malloc(length * sizeof(char));
+  for(int i = 0; i < length; i++){
+    if(inp[i] == '\0'){
+      com[arg][nxt] = '\0';
+      break;
+    }
+    if(i > 0 && inp[i] == ' '){
+      if(inp[i-1] != ' '){
+        com[arg][nxt] = '\0';
+        nxt = 0;
+        if(arg < args){
+          arg++;
+          com[arg] = malloc(length * sizeof(char));
+        }
+      }
+      continue;
+    }
+    com[arg][nxt] = inp[i];
+    nxt++;
+  }
+
+  return com;
 }

@@ -4,48 +4,12 @@
 #include <stdio.h>
 #include "interface.h"
 #include "networker.h"
-
-char **getCommand(char *inp){
-  int args = 1;
-  int length = strlen(inp);
-  for(int i = 0; i < length-1; i++){
-    if(inp[i] == ' ' && inp[i+1] != ' ' && inp[i+1] != '\0'){
-      args++;
-    }
-  }
-  int nxt = 0;
-  int arg = 0;
-
-  char **com = malloc(args * sizeof(char *));
-  com[0] = malloc(length * sizeof(char));
-  for(int i = 0; i < length; i++){
-    if(inp[i] == '\0'){
-      com[arg][nxt] = '\0';
-      break;
-    }
-    if(i > 0 && inp[i] == ' '){
-      if(inp[i-1] != ' '){
-        com[arg][nxt] = '\0';
-        nxt = 0;
-        if(arg < args){
-          arg++;
-          com[arg] = malloc(length * sizeof(char));
-        }
-      }
-      continue;
-    }
-    com[arg][nxt] = inp[i];
-    nxt++;
-  }
-
-  return com;
-}
-
+#include "chatterUtils.h"
 int main(int argc, char *argv[]){
   initInterface();
   displayNew("////////////////////////////////////////////////////");
   displayNew("// Welcome to Oli's Pizza Delivery Service v0.0.1 //");
-  displayNew("// Arguably the best instant messenger there is!  //");
+  displayNew("// Arguably the worst instant messenger there is! //");
   displayNew("////////////////////////////////////////////////////");
 
   char ip[16];

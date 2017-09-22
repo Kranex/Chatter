@@ -10,6 +10,9 @@
 #include <sys/time.h> //FD_SET, FD_ISSET, FD_ZERO macros
 #include <pthread.h>
 
+#include "chatterUtils.h"
+#include "interface.h"
+
 #define TRUE   1
 #define FALSE  0
 #define MAX_CLIENTS 30
@@ -173,7 +176,50 @@ void * server(void *args){
             //of the data read
             buffer[valread] = '\0';
             if(prefix("/name", buffer)){
-              strncpy(names[i], replaceChar(buffer, '\n', '\0') + 6, strlen(buffer)-5);
+              char name[16];
+              strncpy(name, replaceChar(buffer, '\n', '\0') + 6, sizeof(name));
+              int nameTaken = 0;
+              for(int j = 0; j < MAX_CLIENTS; j++){
+                if(!strcmp(name, names[j]) && strcmp(name, "")){
+                  char msg[128+16];
+                  snprintf(msg, 128+16, "<server> '%s' is already taken.\n", name);
+                  send(client_socket[i], msg , strlen(msg) , 0 );
+                  nameTaken = 1;
+                }
+              }
+              for(int j = 0; j < MAX_CLIENTS && !nameTaken; j++){
+                char msg[128+16];
+                snprintf(msg, 128+16, "<server> '%s' is now '%s'\n", names[i], name);
+                send(client_socket[j], msg , strlen(msg) , 0 );
+              }
+              if(!nameTaken){
+                strcpy(names[i], name);
+              }
+            }else if(prefix("/tell", buffer)){
+              int told = 0;
+              char name[16];
+              for(int j = 0; j < MAX_CLIENTS; j++){
+                name[0] = '\0';
+                for(int k = 0; k < 15 && buffer[6+k] != ' '; k++){
+                  name[k] = buffer[6+k];
+                  name[k+1] = '\0';
+                }
+                if(!strcmp(names[j], name) && strcmp(name, "")){
+                  char msg[128];
+                  strncpy(msg, buffer + 6 + strlen(name) + 1, strlen(buffer));
+                  char namMsg[128+32];
+                  sprintf(namMsg, "<%s->%s> %s", names[i], name, msg);
+                  send(client_socket[j], namMsg, strlen(namMsg), 0);
+                  send(client_socket[i], namMsg, strlen(namMsg), 0);
+                  told = 1;
+                  break;
+                }
+              }
+              if(!told){
+                char msg[128+16];
+                snprintf(msg, 128+16, "<server> '%s' not found...\n", name);
+                send(client_socket[i], msg , strlen(msg) , 0 );
+              }
             }else{
               for(int j = 0; j < MAX_CLIENTS; j++){
                 char msg[128+16];

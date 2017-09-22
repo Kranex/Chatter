@@ -81,10 +81,13 @@ char *getInput(){
         return str;
       case 127:
       case KEY_BACKSPACE:
-        inputStord--;
-        inputStor[inputStord] = '\0';
-        updateInput();
-        continue;
+        if(inputStord > 0){
+          inputStord--;
+          inputStor[inputStord] = '\0';
+          updateInput();
+          continue;
+        }
+        break;
     }
     if(inputStord < INPUSTOR-2 && c >= ' ' && c <= '~'){
       inputStor[inputStord++] = (char)c;
