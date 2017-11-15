@@ -14,6 +14,9 @@
 #include "client.h"
 
 void startServer(char * port){
+  char str[128];
+  sprintf(str,"Starting Server on port: %s...", port);
+  displayPrint("<server>", str);
   initServer(port);
 }
 

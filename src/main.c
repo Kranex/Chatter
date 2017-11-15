@@ -5,6 +5,8 @@
 #include "interface.h"
 #include "networker.h"
 #include "chatterUtils.h"
+
+/* who need comments? */
 int main(int argc, char *argv[]){
   initInterface();
   displayNew("////////////////////////////////////////////////////");

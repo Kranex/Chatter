@@ -22,18 +22,6 @@ int initalised = 0;
 int users = 0;
 pthread_t serverThread;
 
-int prefix(const char *pre, const char *str)
-{
-  return strncmp(pre, str, strlen(pre)) == 0;
-}
-char* replaceChar(char* str, char find, char replace){
-  char *current_pos = strchr(str,find);
-  while (current_pos){
-    *current_pos = replace;
-    current_pos = strchr(current_pos,find);
-  }
-  return str;
-}
 void * server(void *args){
   int opt = TRUE;
   int master_socket, addrlen, new_socket, client_socket[MAX_CLIENTS], activity, valread, sd;
@@ -177,7 +165,8 @@ void * server(void *args){
             buffer[valread] = '\0';
             if(prefix("/name", buffer)){
               char name[16];
-              strncpy(name, replaceChar(buffer, '\n', '\0') + 6, sizeof(name));
+              strncpy(name, replaceChar(buffer, '\n', '\0') + 6, sizeof(name)-1);
+              name[15] = '/0';
               int nameTaken = 0;
               for(int j = 0; j < MAX_CLIENTS; j++){
                 if(!strcmp(name, names[j]) && strcmp(name, "")){
@@ -200,7 +189,7 @@ void * server(void *args){
               char name[16];
               for(int j = 0; j < MAX_CLIENTS; j++){
                 name[0] = '\0';
-                for(int k = 0; k < 15 && buffer[6+k] != ' '; k++){
+                for(int k = 0; k < 16 && buffer[6+k] != ' '; k++){
                   name[k] = buffer[6+k];
                   name[k+1] = '\0';
                 }
@@ -232,8 +221,8 @@ void * server(void *args){
       }
     }
   }
-  void initServer(char * p){
-    strcpy(port, p);
-    pthread_create(&serverThread, NULL, server, NULL);
-    while(!initalised);
-  }
+void initServer(char * p){
+  strcpy(port, p);
+  pthread_create(&serverThread, NULL, server, NULL);
+  while(!initalised);
+}
